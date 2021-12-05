@@ -1,3 +1,10 @@
+<?php
+
+session_start();
+
+include_once 'action.php';
+
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -44,6 +51,17 @@
         <div class="col-md-10">
             <h3 class="text-center text-dark mt-2">Advanced CRUD App Using PHP & MySQLi Prepared Statement (Object Oriented)</h3>
             <hr>
+
+            <?php if (isset($_SESSION['response'])) { ?>
+                <div class="alert text-center alert-<?= $_SESSION['res_type'] ?> alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <b text-center><?= $_SESSION['response'] ?></b>
+                </div>
+            <?php
+                }
+            unset($_SESSION['response']);
+            ?>
+
         </div>
     </div>
     
@@ -52,7 +70,7 @@
 
             <h3 class="text-center text-info">Add Record</h3>
 
-            <form action="#" method="post" enctype="multipart/form-data">
+            <form action="action.php" method="post" enctype="multipart/form-data">
 
                 <div class="form-group">
                     <input type="text" name="name" class="form-control" placeholder="Enter name" required>
@@ -85,6 +103,12 @@
         </div>
         <div class="col-md-8">
 
+            <?php
+                $query = "SELECT * FROM `crud`";
+                $stmt = $conn->prepare($query);
+                $stmt->execute();
+                $result = $stmt->get_result();
+            ?>
             <h3 class="text-center text-info">Records Present In The Database</h3>
 
             <table class="table  table-hover">
@@ -98,20 +122,24 @@
                     <th>Action</th>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr>
-                    <td>1</td>
-                    <td><img src="" width="25"></td>
-                    <td>Vasia</td>
-                    <td>Vasia@gmail.com</td>
-                    <td>7777777777</td>
-                    <td>
-                        <a href="#" class="btn btn-primary">Details</a> |
-                        <a href="#" class="btn btn-danger">Delete</a> |
-                        <a href="#" class="btn btn-success">Edit</a>
-                    </td>
-                </tr>
+                    <?php while ($row = $result->fetch_assoc()) { ?>
+                        <tr>
+                            <td><?= $row['id'] ?></td>
+                            <td><img src="<?= $row['photo'] ?>" width="60"></td>
+                            <td><?= $row['name'] ?></td>
+                            <td><?= $row['email'] ?></td>
+                            <td><?= $row['phone'] ?></td>
+                            <td>
+                                <a href="details.php?details=<?= $row['id'] ?>" class="btn btn-primary">Details</a> |
+                                <a href="action.php?delete=<?= $row['id'] ?>" class="btn btn-danger">Delete</a> |
+                                <a href="index.php?edit=<?= $row['id'] ?>" class="btn btn-success">Edit</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
                 </tbody>
+
             </table>
         </div>
     </div>
